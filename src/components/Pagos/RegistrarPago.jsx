@@ -22,20 +22,26 @@ export default function RegistrarPago({ reserva, onRegistrar, onVolver }) {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!form.dni || !form.fecha_pago || !form.metodo_pago) {
-      setError('Por favor complete todos los campos');
-      return;
-    }
+  if (!form.dni || !form.fecha_pago || !form.metodo_pago) {
+    setError('Por favor complete todos los campos');
+    return;
+  }
 
-    try {
-      await onRegistrar(form);
-      setError('');
-    } catch {
+  try {
+    await onRegistrar(form);
+    setError('');
+  } catch (err) {
+    // Si viene mensaje del backend, mostrarlo
+    if (err.response && err.response.data && err.response.data.error) {
+      setError(err.response.data.error);
+    } else {
       setError('No se pudo registrar el pago');
     }
-  };
+  }
+};
+
 
   return (
     <div
