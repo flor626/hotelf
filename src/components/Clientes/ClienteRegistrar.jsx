@@ -1,34 +1,45 @@
 import React, { useState } from 'react';
-import { registrarCliente } from '../../api/clienteService'; // Verifica la ruta
+import { registrarCliente } from '../../api/clienteService';
 
-export default function ClienteRegistrar({ onVolver }) {
+export default function ClienteRegistrar({ onVolver, rol }) {
   const [form, setForm] = useState({
     nombre: '',
     apellidos: '',
     dni: '',
     celular: '',
     telefono: '',
-    direccion: ''
+    direccion: '',
+    email: '',
+    password: '',
   });
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const generarPassword = () => {
+    const randomPassword = Math.random().toString(36).slice(-8); // Generar contraseña aleatoria
+    setForm({ ...form, password: randomPassword });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await registrarCliente(form);
-      if (response.mensaje === 'Cliente creado') {
-        alert('Cliente registrado exitosamente');
-        onVolver(); // vuelve al listado
+      const response = await registrarCliente({ ...form, rol });
+
+      if (
+        response.mensaje === 'Cliente registrado por recepcionista' ||
+        response.mensaje === 'Cliente y usuario registrados correctamente'
+      ) {
+        alert('✅ Cliente registrado exitosamente');
+        onVolver();
       } else {
-        alert('Hubo un problema al registrar el cliente');
-        console.error(response);
+        alert('⚠️ Registro fallido: ' + (response.mensaje || 'Respuesta inesperada'));
+        console.error('Respuesta inesperada:', response);
       }
     } catch (error) {
-      alert('Error al registrar el cliente');
+      alert('❌ Error al registrar el cliente: ' + error.message);
       console.error(error);
     }
   };
@@ -37,6 +48,7 @@ export default function ClienteRegistrar({ onVolver }) {
     <div className="container my-4" style={{ maxWidth: '600px' }}>
       <h2 className="mb-4">Registrar Cliente</h2>
       <form onSubmit={handleSubmit}>
+        {/* Campos existentes */}
         <div className="mb-3">
           <label htmlFor="nombre" className="form-label">Nombre <span className="text-danger">*</span></label>
           <input
@@ -50,7 +62,6 @@ export default function ClienteRegistrar({ onVolver }) {
             placeholder="Ingrese nombre"
           />
         </div>
-
         <div className="mb-3">
           <label htmlFor="apellidos" className="form-label">Apellidos <span className="text-danger">*</span></label>
           <input
@@ -64,7 +75,6 @@ export default function ClienteRegistrar({ onVolver }) {
             placeholder="Ingrese apellidos"
           />
         </div>
-
         <div className="mb-3">
           <label htmlFor="dni" className="form-label">DNI <span className="text-danger">*</span></label>
           <input
@@ -81,7 +91,6 @@ export default function ClienteRegistrar({ onVolver }) {
             title="Debe ser un DNI válido de 8 dígitos"
           />
         </div>
-
         <div className="mb-3">
           <label htmlFor="celular" className="form-label">Celular <span className="text-danger">*</span></label>
           <input
@@ -97,7 +106,6 @@ export default function ClienteRegistrar({ onVolver }) {
             title="Debe ser un número celular válido de 9 dígitos"
           />
         </div>
-
         <div className="mb-3">
           <label htmlFor="telefono" className="form-label">Teléfono</label>
           <input
@@ -110,7 +118,6 @@ export default function ClienteRegistrar({ onVolver }) {
             placeholder="Ingrese teléfono (opcional)"
           />
         </div>
-
         <div className="mb-3">
           <label htmlFor="direccion" className="form-label">Dirección</label>
           <input
@@ -123,11 +130,40 @@ export default function ClienteRegistrar({ onVolver }) {
             placeholder="Ingrese dirección (opcional)"
           />
         </div>
-
+        <div className="mb-3">
+          <label htmlFor="email" className="form-label">Correo Electrónico</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            className="form-control"
+            value={form.email}
+            onChange={handleChange}
+            required
+            placeholder="Ingrese correo electrónico"
+          />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="password" className="form-label">Contraseña <span className="text-danger">*</span></label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            className="form-control"
+            value={form.password}
+            onChange={handleChange}
+            required={rol === 'cliente'} // Solo obligatorio para el cliente
+            placeholder="Ingrese contraseña"
+            minLength={6}
+          />
+          {rol === 'recepcionista' && (
+            <button type="button" className="btn btn-primary mt-2" onClick={generarPassword}>
+              Generar Contraseña
+            </button>
+          )}
+        </div>
         <button type="submit" className="btn btn-success me-2">Registrar</button>
-        <button type="button" className="btn btn-secondary" onClick={onVolver}>
-          Cancelar
-        </button>
+        <button type="button" className="btn btn-secondary" onClick={onVolver}>Cancelar</button>
       </form>
     </div>
   );
