@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { listarReservas, crearReserva, cancelarReserva } from '../../api/reservaService';
-import RegistrarPago from '../Pagos/RegistrarPago'; // Importa el componente
-import { registrarPago } from '../../api/pago'; // importa la función para registrar pago
+import RegistrarPago from '../Pagos/RegistrarPago'; // Componente para pago
+import { registrarPago } from '../../api/pago'; // Función para registrar pago
 
 export default function Reservas() {
   const [pantalla, setPantalla] = useState('listar');
@@ -15,7 +15,6 @@ export default function Reservas() {
   });
   const [loading, setLoading] = useState(false);
 
-  // Estado para mostrar formulario de pago y la reserva a pagar
   const [mostrarPago, setMostrarPago] = useState(false);
   const [reservaPago, setReservaPago] = useState(null);
 
@@ -28,7 +27,8 @@ export default function Reservas() {
       setLoading(true);
       const data = await listarReservas(fecha);
       setReservas(data);
-    } catch (error) {
+    } catch (/** @type {any} */ error) {
+      console.error(error);
       alert('Error al cargar reservas');
     } finally {
       setLoading(false);
@@ -51,7 +51,8 @@ export default function Reservas() {
         fecha_fin: '',
       });
       setPantalla('listar');
-    } catch (error) {
+    } catch (/** @type {any} */ error) {
+      console.error(error);
       alert('Error al crear reserva');
     }
   };
@@ -62,15 +63,14 @@ export default function Reservas() {
       await cancelarReserva(id);
       alert('Reserva cancelada');
       cargarReservas();
-    } catch (error) {
+    } catch (/** @type {any} */ error) {
+      console.error(error);
       alert('Error al cancelar reserva');
     }
   };
 
-  // Función para registrar pago llamando a la API y actualizar la vista
   const handleRegistrarPago = async (formPago) => {
     try {
-      // Enviar datos de pago + id_reserva
       await registrarPago({
         ...formPago,
         id_reserva: reservaPago.id,
@@ -79,18 +79,17 @@ export default function Reservas() {
       setMostrarPago(false);
       setReservaPago(null);
       cargarReservas();
-    } catch (error) {
+    } catch (/** @type {any} */ error) {
+      console.error(error);
       alert('Error al registrar el pago');
     }
   };
 
-  // Abrir formulario para registrar pago
   const abrirPago = (reserva) => {
     setReservaPago(reserva);
     setMostrarPago(true);
   };
 
-  // Cerrar formulario de pago sin registrar
   const cerrarPago = () => {
     setMostrarPago(false);
     setReservaPago(null);
@@ -101,7 +100,6 @@ export default function Reservas() {
     setPantalla('listar');
   };
 
-  // Función para asignar color según estado
   const colorEstado = (estado) => {
     switch (estado) {
       case 'cancelada':
@@ -136,8 +134,8 @@ export default function Reservas() {
                   <div className="card shadow-sm">
                     <div className="card-body">
                       <h5 className="card-title">Reserva #{reserva.id}</h5>
-                      <p><strong>ID Cliente:</strong> {reserva.id_cliente}</p>
-                      <p><strong>ID Habitación:</strong> {reserva.id_habitacion}</p>
+                      <p><strong>Cliente:</strong> {reserva.cliente?.nombre} {reserva.cliente?.apellidos}</p>
+                      <p><strong>Habitación:</strong> N° {reserva.habitacion?.numero}</p>
                       <p><strong>Inicio:</strong> {reserva.fecha_inicio}</p>
                       <p><strong>Fin:</strong> {reserva.fecha_fin}</p>
                       <p>
@@ -156,7 +154,6 @@ export default function Reservas() {
                         </button>
                       )}
 
-                      {/* Mostrar botón Registrar Pago solo si NO está cancelada ni finalizada */}
                       {reserva.estado !== 'cancelada' && reserva.estado !== 'finalizada' && (
                         <button
                           className="btn btn-outline-primary mt-2 ms-2"
@@ -256,7 +253,6 @@ export default function Reservas() {
         </div>
       )}
 
-      {/* Formulario para registrar pago, se muestra sólo si mostrarPago = true */}
       {mostrarPago && (
         <RegistrarPago
           reserva={reservaPago}
