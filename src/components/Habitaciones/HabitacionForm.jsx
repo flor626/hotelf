@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { registrarHabitacion } from '../../api/habitacionService';
 
 export default function HabitacionForm({ onSuccess }) {
   const [form, setForm] = useState({
@@ -11,24 +12,29 @@ export default function HabitacionForm({ onSuccess }) {
   });
   const [imagen, setImagen] = useState(null);
 
-  const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
-  const handleImageChange = e => setImagen(e.target.files[0]);
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
-  const handleSubmit = async e => {
+  const handleImageChange = (e) => {
+    setImagen(e.target.files[0]);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const formData = new FormData();
-    Object.entries(form).forEach(([key, value]) => formData.append(key, value));
-    if (imagen) formData.append('imagen', imagen);
-
-    const res = await fetch('http://127.0.0.1:8000/api/habitaciones', {
-      method: 'POST',
-      body: formData,
-    });
-
-    const data = await res.json();
-    if (data.habitacion) {
-      onSuccess(); // Recargar lista
+    try {
+      const response = await registrarHabitacion({ ...form, imagen });
+      if (response.habitacion) {
+        alert('✅ Habitación registrada exitosamente');
+        onSuccess(); // Recargar lista
+      } else {
+        alert('⚠️ Error: ' + (response.mensaje || 'No se registró la habitación'));
+        console.error(response);
+      }
+    } catch (error) {
+      alert('❌ Error al registrar habitación: ' + error.message);
+      console.error(error);
     }
   };
 
