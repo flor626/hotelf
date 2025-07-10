@@ -1,23 +1,18 @@
 // src/api/reservaService.js
-
-const API_URL = 'http://127.0.0.1:8000/api/reservas';
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Listar todas las reservas o filtrar por fecha
+// En api/reservaService.js
 export async function listarReservas(fecha = null) {
-  let url = API_URL;
+  let url = `${API_URL}/reservas?with=cliente,habitacion`;
   if (fecha) {
-    const params = new URLSearchParams({ fecha });
-    url += `?${params.toString()}`;
+    url += `&fecha=${fecha}`;
   }
-
   const res = await fetch(url);
-  // Validar que la respuesta sea correcta
   if (!res.ok) throw new Error('Error al obtener reservas');
-  
-  const data = await res.json();
-  // Aseguramos que siempre retornamos un array (vacío si no hay datos)
-  return Array.isArray(data) ? data : [];
+  return await res.json();
 }
+
 
 // Crear nueva reserva
 export async function crearReserva(data) {

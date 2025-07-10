@@ -1,7 +1,7 @@
-const API_URL = 'http://127.0.0.1:8000/api';
-
+const API_URL = import.meta.env.VITE_API_URL;
 export async function listarPagos() {
   const res = await fetch(`${API_URL}/pagos`);
+
   if (!res.ok) throw new Error('No se pudieron obtener los pagos');
   return res.json();
 }

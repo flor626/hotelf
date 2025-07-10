@@ -1,4 +1,5 @@
-const API_URL = '/api'; // Usa el proxy de Vite
+const API_URL = import.meta.env.VITE_API_URL;
+ // Usa el proxy de Vite
 
 // Manejo de errores para respuestas no JSON
 async function safeJson(res) {
