@@ -1,6 +1,7 @@
 // ✅ Reservas/CrearReserva.jsx
 import React, { useState } from 'react';
-import { crearReserva } from '@/api/reservaService';
+import { crearReserva } from '../../api/reservaService';
+
 
 export default function CrearReserva({ onReservaCreada }) {
   const [form, setForm] = useState({

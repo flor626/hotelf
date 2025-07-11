@@ -1,16 +1,21 @@
 import React, { useEffect, useState } from 'react';
+import { disponibilidadPorHabitacion } from '../../api/habitacionService';
 
 export default function HabitacionCard({ habitacion, onClick }) {
   const [disponibilidades, setDisponibilidades] = useState([]);
 
   useEffect(() => {
-    fetch(`http://127.0.0.1:8000/api/habitaciones/${habitacion.id}/disponibilidad`)
-      .then(res => res.json())
-      .then(data => {
-        setDisponibilidades(data.disponibilidades || []);
-      })
-      .catch(() => setDisponibilidades([]));
-  }, [habitacion.id]);
+  const hoy = new Date().toISOString().split('T')[0]; // yyyy-mm-dd
+  disponibilidadPorHabitacion(habitacion.id, hoy)
+    .then((data) => {
+      setDisponibilidades(data.disponibilidades || []);
+    })
+    .catch(() => {
+      setDisponibilidades([]);
+    });
+}, [habitacion.id]);
+
+
 
   // Capitaliza estado
   const capitalizar = (str) => str.charAt(0).toUpperCase() + str.slice(1);
