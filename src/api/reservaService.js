@@ -16,7 +16,7 @@ export async function listarReservas(fecha = null) {
 
 // Crear nueva reserva
 export async function crearReserva(data) {
-  const res = await fetch(API_URL, {
+  const res = await fetch(`${API_URL}/reservas`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
