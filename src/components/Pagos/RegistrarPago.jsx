@@ -1,19 +1,25 @@
-// src/components/Pagos/RegistrarPago.jsx
 import React, { useState, useEffect } from 'react';
 
 export default function RegistrarPago({ reserva, onRegistrar, onVolver }) {
   const [form, setForm] = useState({
     dni: '',
+    nombre: '',
+    apellidos: '',
     fecha_pago: '',
     metodo_pago: 'efectivo',
   });
 
   const [error, setError] = useState('');
 
-  // Prellenar DNI al abrir el modal si viene en reserva
+  // Prellenar datos del cliente cuando se abra el modal
   useEffect(() => {
-    if (reserva && reserva.dni_cliente) {
-      setForm((f) => ({ ...f, dni: reserva.dni_cliente }));
+    if (reserva && reserva.cliente) {
+      setForm((f) => ({
+        ...f,
+        dni: reserva.cliente.dni || '',
+        nombre: reserva.cliente.nombre || '',
+        apellidos: reserva.cliente.apellidos || '',
+      }));
     }
   }, [reserva]);
 
@@ -22,32 +28,36 @@ export default function RegistrarPago({ reserva, onRegistrar, onVolver }) {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (!form.dni || !form.fecha_pago || !form.metodo_pago) {
-    setError('Por favor complete todos los campos');
-    return;
-  }
-
-  try {
-    await onRegistrar(form);
-    setError('');
-  } catch (err) {
-    // Si viene mensaje del backend, mostrarlo
-    if (err.response && err.response.data && err.response.data.error) {
-      setError(err.response.data.error);
-    } else {
-      setError('No se pudo registrar el pago');
+    if (!form.dni || !form.fecha_pago || !form.metodo_pago) {
+      setError('Por favor complete todos los campos');
+      return;
     }
-  }
-};
 
+    try {
+      await onRegistrar({
+        ...form,
+        id_reserva: reserva?.id, // Incluye el id_reserva
+      });
+      setError('');
+    } catch (err) {
+      if (err.response && err.response.data && err.response.data.error) {
+        setError(err.response.data.error);
+      } else {
+        setError('No se pudo registrar el pago');
+      }
+    }
+  };
 
   return (
     <div
       style={{
         position: 'fixed',
-        top: 0, left: 0, right: 0, bottom: 0,
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
         backgroundColor: 'rgba(0,0,0,0.5)',
         display: 'flex',
         justifyContent: 'center',
@@ -80,6 +90,29 @@ export default function RegistrarPago({ reserva, onRegistrar, onVolver }) {
               className="form-control"
               maxLength="8"
               required
+              readOnly
+            />
+          </div>
+
+          <div className="mb-3">
+            <label className="form-label">Nombre</label>
+            <input
+              type="text"
+              name="nombre"
+              value={form.nombre}
+              className="form-control"
+              readOnly
+            />
+          </div>
+
+          <div className="mb-3">
+            <label className="form-label">Apellidos</label>
+            <input
+              type="text"
+              name="apellidos"
+              value={form.apellidos}
+              className="form-control"
+              readOnly
             />
           </div>
 

@@ -1,5 +1,6 @@
 // src/api/habitacionService.js
-const API_URL = import.meta.env.VITE_API_URL;
+//const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = 'http://127.0.0.1:8000/api';
 
 export async function listarHabitaciones() {
   const res = await fetch(`${API_URL}/habitaciones`);

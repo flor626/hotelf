@@ -128,8 +128,8 @@ export default function BuscarClienteDNI({ onEditar, onVolver }) {
                     {formatoRangoFecha(r.fecha_inicio, r.fecha_fin)}
                   </td>
                   <td style={{ padding: '0.5rem', border: '1px solid #ddd' }}>{r.estado || 'Pendiente'}</td>
-                  <td style={{ padding: '0.5rem', border: '1px solid #ddd' }}>{r.habitacion?.nombre || 'N/A'}</td>
-                  <td style={{ padding: '0.5rem', border: '1px solid #ddd' }}>{formatearPrecio(r.precio)}</td>
+                  <td style={{ padding: '0.5rem', border: '1px solid #ddd' }}>{r.habitacion?.numero || 'N/A'}</td>
+                  <td style={{ padding: '0.5rem', border: '1px solid #ddd' }}>{formatearPrecio(r.habitacion?.precio)}</td>
                 </tr>
               ))}
             </tbody>
