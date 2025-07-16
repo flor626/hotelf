@@ -1,5 +1,6 @@
 // src/api/reservaService.js
-const API_URL = import.meta.env.VITE_API_URL;
+//const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = 'http://127.0.0.1:8000/api';
 
 // Listar todas las reservas o filtrar por fecha
 // En api/reservaService.js
@@ -44,3 +45,13 @@ export async function cancelarReserva(id) {
 
   return res.json();
 }
+
+export async function buscarClientePorDni(dni) {
+  const res = await fetch(`${API_URL}/clientes/buscar-por-dni?dni=${dni}`);
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.mensaje || 'Error al buscar el cliente');
+  }
+  return res.json();
+}
+

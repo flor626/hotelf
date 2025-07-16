@@ -1,5 +1,6 @@
-const API_URL = import.meta.env.VITE_API_URL;
+//const API_URL = import.meta.env.VITE_API_URL;
  // Usa el proxy de Vite
+const API_URL = 'http://127.0.0.1:8000/api';
 
 // Manejo de errores para respuestas no JSON
 async function safeJson(res) {
@@ -13,14 +14,10 @@ async function safeJson(res) {
 }
 
 
-export async function listarReservasPorClienteId(clienteId) {
-  const res = await fetch(`${API_URL}/clientes/${clienteId}/reservas`);
+export async function listarReservasPorClienteId(idCliente) {
+  const res = await fetch(`${API_URL}/cliente/${idCliente}/reservas`);
   if (!res.ok) throw new Error('No se pudieron obtener las reservas');
-  const data = await safeJson(res);
-  return data.map((reserva) => ({
-    ...reserva,
-    precio: parseFloat(reserva.precio ?? 0),
-  }));
+  return await res.json();
 }
 
 export async function listarClientes() {
