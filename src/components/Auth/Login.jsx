@@ -11,12 +11,17 @@ const Login = () => {
   const [password, setPassword] = useState('');
 
   const handleSubmit = e => {
-    e.preventDefault();
+  e.preventDefault();
 
+  // Validación del correo y contraseña
+  if (email === 'admin@gmail.com' && password === '12345678') {
     const fakeUser = { email }; // Simulación de usuario logueado
     login(fakeUser);
     navigate('/habitaciones');
-  };
+  } else {
+    alert('Correo o contraseña incorrectos');
+  }
+};
 
   return (
     <div className="container d-flex justify-content-center align-items-center vh-100">

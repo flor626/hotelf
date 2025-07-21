@@ -10,14 +10,13 @@ export default function HabitacionForm({ onSuccess }) {
     descripcion: '',
     estado: 'disponible',
   });
-  const [imagen, setImagen] = useState(null);
-  const [capacidadEditable, setCapacidadEditable] = useState(false); // Para controlar si se puede editar capacidad
 
-  // Actualiza el form y capacidad según tipo
+  const [imagen, setImagen] = useState(null);
+  const [capacidadEditable, setCapacidadEditable] = useState(false); // Controla si se puede editar capacidad
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Si cambia el tipo, ajustamos la capacidad y si es editable
     if (name === 'tipo') {
       let nuevaCapacidad = '';
       let editable = true;
@@ -40,8 +39,6 @@ export default function HabitacionForm({ onSuccess }) {
       }));
 
       setCapacidadEditable(editable);
-    } else if (name === 'capacidad') {
-      setForm((prev) => ({ ...prev, capacidad: value }));
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
     }
@@ -55,7 +52,12 @@ export default function HabitacionForm({ onSuccess }) {
     e.preventDefault();
 
     try {
-      const response = await registrarHabitacion({ ...form, imagen });
+      const response = await registrarHabitacion({
+        ...form,
+        capacidad: Number(form.capacidad), // asegurar número
+        imagen,
+      });
+
       if (response.habitacion) {
         alert('✅ Habitación registrada exitosamente');
         onSuccess(); // Recargar lista
@@ -75,12 +77,24 @@ export default function HabitacionForm({ onSuccess }) {
 
       <div className="mb-3">
         <label className="form-label">Número de Habitación</label>
-        <input name="numero" className="form-control" placeholder="Ej. 101" onChange={handleChange} required />
+        <input
+          name="numero"
+          className="form-control"
+          placeholder="Ej. 101"
+          onChange={handleChange}
+          required
+        />
       </div>
 
       <div className="mb-3">
         <label className="form-label">Tipo</label>
-        <select name="tipo" className="form-select" onChange={handleChange} value={form.tipo} required>
+        <select
+          name="tipo"
+          className="form-select"
+          onChange={handleChange}
+          value={form.tipo}
+          required
+        >
           <option value="simple">Simple</option>
           <option value="doble">Doble</option>
           <option value="suite">Suite</option>
@@ -90,7 +104,13 @@ export default function HabitacionForm({ onSuccess }) {
       <div className="row">
         <div className="col-md-6 mb-3">
           <label className="form-label">Precio</label>
-          <input name="precio" className="form-control" type="number" onChange={handleChange} required />
+          <input
+            name="precio"
+            className="form-control"
+            type="number"
+            onChange={handleChange}
+            required
+          />
         </div>
 
         <div className="col-md-6 mb-3">
@@ -101,7 +121,7 @@ export default function HabitacionForm({ onSuccess }) {
             type="number"
             onChange={handleChange}
             value={form.capacidad}
-            disabled={!capacidadEditable}
+            readOnly={!capacidadEditable} // Importante: no usar disabled
             required
             min={1}
           />
@@ -110,12 +130,22 @@ export default function HabitacionForm({ onSuccess }) {
 
       <div className="mb-3">
         <label className="form-label">Descripción</label>
-        <textarea name="descripcion" className="form-control" rows="3" onChange={handleChange} />
+        <textarea
+          name="descripcion"
+          className="form-control"
+          rows="3"
+          onChange={handleChange}
+        />
       </div>
 
       <div className="mb-3">
         <label className="form-label">Estado</label>
-        <select name="estado" className="form-select" onChange={handleChange} value={form.estado}>
+        <select
+          name="estado"
+          className="form-select"
+          onChange={handleChange}
+          value={form.estado}
+        >
           <option value="disponible">Disponible</option>
           <option value="ocupada">Ocupada</option>
           <option value="mantenimiento">Mantenimiento</option>
@@ -125,7 +155,13 @@ export default function HabitacionForm({ onSuccess }) {
 
       <div className="mb-4">
         <label className="form-label">Imagen</label>
-        <input type="file" name="imagen" className="form-control" accept="image/*" onChange={handleImageChange} />
+        <input
+          type="file"
+          name="imagen"
+          className="form-control"
+          accept="image/*"
+          onChange={handleImageChange}
+        />
       </div>
 
       <button type="submit" className="btn btn-primary w-100">

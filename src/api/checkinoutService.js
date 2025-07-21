@@ -1,8 +1,8 @@
 // src/api/checkinoutService.js
-const API_URL = 'http://127.0.0.1:8000/api';
+//const API_URL = 'http://127.0.0.1:8000/api';
 
 
-//const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL;
 
 /**
  * Registrar un nuevo check-in para una reserva
