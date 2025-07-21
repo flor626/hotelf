@@ -3,6 +3,7 @@
 
 
 const API_URL = import.meta.env.VITE_API_URL;
+
 /**
  * Registrar un nuevo check-in para una reserva
  * @param {number} id_reserva
