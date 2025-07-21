@@ -1,6 +1,6 @@
 // src/api/reservaService.js
-//const API_URL = import.meta.env.VITE_API_URL;
-const API_URL = 'http://127.0.0.1:8000/api';
+const API_URL = import.meta.env.VITE_API_URL;
+//const API_URL = 'http://127.0.0.1:8000/api';
 
 // Listar todas las reservas o filtrar por fecha
 // En api/reservaService.js
@@ -55,3 +55,17 @@ export async function buscarClientePorDni(dni) {
   return res.json();
 }
 
+
+
+
+
+export const serviciosPorReserva = async (idReserva) => {
+  try {
+    const response = await fetch(`${API_URL}/reserva-servicios/${idReserva}`);
+    if (!response.ok) throw new Error("Error al obtener servicios");
+    return await response.json();
+  } catch (error) {
+    console.error("Error al obtener servicios extras de la reserva:", error);
+    return [];
+  }
+};

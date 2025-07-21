@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { listarReservas, crearReserva, cancelarReserva } from '../../api/reservaService';
-import RegistrarPago from '../Pagos/RegistrarPago'; // Componente para pago
-import { registrarPago } from '../../api/pago'; // Función para registrar pago
+import {
+  listarReservas,
+  crearReserva,
+  cancelarReserva,
+} from '../../api/reservaService';
+import {
+  obtenerPagoPorReserva,
+  registrarPago,
+} from '../../api/pago';
+import { serviciosPorReserva } from '../../api/reservaService';
+import RegistrarPago from '../Pagos/RegistrarPago';
 
 export default function Reservas() {
   const [pantalla, setPantalla] = useState('listar');
@@ -18,6 +26,19 @@ export default function Reservas() {
   const [mostrarPago, setMostrarPago] = useState(false);
   const [reservaPago, setReservaPago] = useState(null);
 
+  const [mostrarDetallePago, setMostrarDetallePago] = useState(false);
+  const [reservaDetalle, setReservaDetalle] = useState(null);
+  const [serviciosExtras, setServiciosExtras] = useState([]);
+  const [detallePago, setDetallePago] = useState(null);
+
+  // Mapa de iconos para servicios extras
+  const iconosServicios = {
+    "Masaje Relajante": "💆",
+    "Lavandería": "🧺",
+    "Estacionamiento": "🅿️",
+    // Agrega aquí más servicios e íconos si quieres
+  };
+
   useEffect(() => {
     if (pantalla === 'listar') cargarReservas();
   }, [pantalla]);
@@ -27,7 +48,7 @@ export default function Reservas() {
       setLoading(true);
       const data = await listarReservas(fecha);
       setReservas(data);
-    } catch (/** @type {any} */ error) {
+    } catch (error) {
       console.error(error);
       alert('Error al cargar reservas');
     } finally {
@@ -51,7 +72,7 @@ export default function Reservas() {
         fecha_fin: '',
       });
       setPantalla('listar');
-    } catch (/** @type {any} */ error) {
+    } catch (error) {
       console.error(error);
       alert('Error al crear reserva');
     }
@@ -63,7 +84,7 @@ export default function Reservas() {
       await cancelarReserva(id);
       alert('Reserva cancelada');
       cargarReservas();
-    } catch (/** @type {any} */ error) {
+    } catch (error) {
       console.error(error);
       alert('Error al cancelar reserva');
     }
@@ -79,7 +100,7 @@ export default function Reservas() {
       setMostrarPago(false);
       setReservaPago(null);
       cargarReservas();
-    } catch (/** @type {any} */ error) {
+    } catch (error) {
       console.error(error);
       alert('Error al registrar el pago');
     }
@@ -93,6 +114,32 @@ export default function Reservas() {
   const cerrarPago = () => {
     setMostrarPago(false);
     setReservaPago(null);
+  };
+
+  const abrirDetallePago = async (reserva) => {
+    try {
+      setReservaDetalle(reserva);
+
+      // Obtener servicios extras de la reserva
+      const servicios = await serviciosPorReserva(reserva.id);
+      setServiciosExtras(servicios);
+
+      // Obtener pago por reserva
+      const pago = await obtenerPagoPorReserva(reserva.id);
+      setDetallePago(pago);
+
+      setMostrarDetallePago(true);
+    } catch (error) {
+      console.error(error);
+      alert("Error al obtener detalles de la reserva");
+    }
+  };
+
+  const cerrarDetallePago = () => {
+    setReservaDetalle(null);
+    setServiciosExtras([]);
+    setDetallePago(null);
+    setMostrarDetallePago(false);
   };
 
   const handleFiltrarFecha = () => {
@@ -145,21 +192,29 @@ export default function Reservas() {
                         </span>
                       </p>
 
-                      {reserva.estado !== 'cancelada' && (
-                        <button
-                          className="btn btn-outline-danger mt-2"
-                          onClick={() => handleCancelar(reserva.id)}
-                        >
-                          Cancelar
-                        </button>
+                      {reserva.estado !== 'cancelada' && reserva.estado !== 'finalizada' && (
+                        <>
+                          <button
+                            className="btn btn-outline-danger mt-2"
+                            onClick={() => handleCancelar(reserva.id)}
+                          >
+                            Cancelar
+                          </button>
+                          <button
+                            className="btn btn-outline-primary mt-2 ms-2"
+                            onClick={() => abrirPago(reserva)}
+                          >
+                            Registrar Pago
+                          </button>
+                        </>
                       )}
 
-                      {reserva.estado !== 'cancelada' && reserva.estado !== 'finalizada' && (
+                      {reserva.estado === 'finalizada' && (
                         <button
-                          className="btn btn-outline-primary mt-2 ms-2"
-                          onClick={() => abrirPago(reserva)}
+                          className="btn btn-outline-info mt-2"
+                          onClick={() => abrirDetallePago(reserva)}
                         >
-                          Registrar Pago
+                          Ver Detalles de Pago
                         </button>
                       )}
                     </div>
@@ -259,6 +314,58 @@ export default function Reservas() {
           onRegistrar={handleRegistrarPago}
           onVolver={cerrarPago}
         />
+      )}
+
+      {/* Modal Detalle de Pago */}
+      {mostrarDetallePago && reservaDetalle && (
+        <div className="modal d-block" style={{
+          backgroundColor: "rgba(0,0,0,0.5)",
+          position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+          display: "flex", justifyContent: "center", alignItems: "center",
+          zIndex: 1050
+        }}>
+          <div className="modal-dialog modal-lg">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Detalle de la Reserva</h5>
+                <button className="btn-close" onClick={cerrarDetallePago}></button>
+              </div>
+              <div className="modal-body">
+                <p><strong>Cliente:</strong> {reservaDetalle.cliente?.nombre}</p>
+                <p><strong>DNI:</strong> {reservaDetalle.cliente?.dni}</p>
+                <p><strong>Habitación:</strong> {reservaDetalle.habitacion?.numero}</p>
+                <p><strong>Precio Habitación:</strong> S/ {Number(reservaDetalle.habitacion?.precio).toFixed(2)}</p>
+                <p><strong>Fecha Inicio:</strong> {reservaDetalle.fecha_inicio}</p>
+                <p><strong>Fecha Fin:</strong> {reservaDetalle.fecha_fin}</p>
+
+                <p><strong>Servicios Extras:</strong></p>
+                <ul>
+                  {serviciosExtras.length > 0 ? (
+                    serviciosExtras.map((s, i) => (
+                      <li key={i}>
+                        {iconosServicios[s.nombre] || "🔹"} {s.nombre} - S/ {Number(s.precio).toFixed(2)}
+                      </li>
+                    ))
+                  ) : (
+                    <li>No se registraron servicios.</li>
+                  )}
+                </ul>
+
+                <p><strong>Total:</strong> S/ {(
+                  Number(reservaDetalle.habitacion?.precio || 0) +
+                  serviciosExtras.reduce((acc, s) => acc + Number(s.precio), 0)
+                ).toFixed(2)}</p>
+
+                {detallePago && (
+                  <p><strong>Fecha de pago:</strong> {new Date(detallePago.fecha_pago).toLocaleString()}</p>
+                )}
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-secondary" onClick={cerrarDetallePago}>Cerrar</button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
